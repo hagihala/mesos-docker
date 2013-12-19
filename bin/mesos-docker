@@ -62,6 +62,7 @@ class DockerExecutor(mesos.Executor):
         finalstate = mesos_pb2.TASK_FAILED
         resources = self.task.resources
         try:
+            self.send_state(mesos_pb2.TASK_STARTING)
             cpus = [ r.scalar.value for r in resources if r.name == 'cpus' ]
             megs = [ r.scalar.value for r in resources if r.name == 'mem' ]
             relative_cpu = [ int(256 * r)     for r in cpus ] + [ None ]
