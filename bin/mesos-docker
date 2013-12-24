@@ -58,6 +58,7 @@ class DockerExecutor(mesos.Executor):
 
     def run(self):
         global proc
+        exitcode = 2
         finalstate = mesos_pb2.TASK_FAILED
         resources = self.task.resources
         try:
@@ -71,7 +72,8 @@ class DockerExecutor(mesos.Executor):
             self.send_state(mesos_pb2.TASK_RUNNING)
             proc.wait()
             log.info('Container exited with code: %d' % proc.returncode)
-            if proc.returncode == 0:
+            exitcode = proc.returncode
+            if exitcode == 0:
                 finalstate = mesos_pb2.TASK_FINISHED
             else:
                 if self.shutdown_thread:
@@ -82,6 +84,7 @@ class DockerExecutor(mesos.Executor):
             log_exc()
         finally:
             self.send_state(finalstate)
+            exit(exitcode)
 
     def send_state(self, state):
         try:
